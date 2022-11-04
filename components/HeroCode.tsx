@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAccount } from "wagmi";
+import {
+  useGetSmartAccount,
+  useSmartAccountsByConnected,
+  useSmartAccountState,
+} from "../lib/hooks/biconomy";
 import { shortenAddress } from "../lib/shortenAddress";
 
-export function HeroCode() {
+export default function HeroCode() {
   const { address } = useAccount();
+  useGetSmartAccount();
+  useSmartAccountsByConnected();
+  useSmartAccountState();
 
   return (
     <div className="w-4/12">

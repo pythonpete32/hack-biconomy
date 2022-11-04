@@ -1,5 +1,10 @@
 import type { NextPage } from "next";
-import { HeroCode } from "../components/HeroCode";
+import dynamic from "next/dynamic";
+import { lazy, Suspense } from "react";
+
+const HeroCode = dynamic(() => import("../components/HeroCode"), {
+  ssr: false,
+});
 
 const Home: NextPage = () => {
   return (
