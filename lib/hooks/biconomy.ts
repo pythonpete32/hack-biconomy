@@ -1,28 +1,23 @@
-import { useAccount } from "wagmi";
+import { useState } from "react";
+import { Transaction } from "@biconomy-sdk/core-types";
+import { RestRelayer } from "@biconomy-sdk/relayer";
 import SmartAccount from "@biconomy-sdk/smart-account";
-import {
-  SmartAccountState,
-  SmartAccountVersion,
-} from "@biconomy-sdk/core-types";
-import { LocalRelayer, RestRelayer } from "@biconomy-sdk/relayer";
-
+import { useAccount, useMutation } from "wagmi";
 import { ethers } from "ethers";
 import { useQuery } from "@tanstack/react-query";
+
 import { useWindowEthereum } from "./useWindowEthereum";
-import { useState } from "react";
-var Web3 = require("web3");
 
 async function getSmartAccount(address: any, provider: any) {
   if (!provider || !address) return;
   const walletProvider = new ethers.providers.Web3Provider(provider);
 
   const wallet = new SmartAccount(walletProvider, {
-    activeNetworkId: activeChainId,
-    supportedNetworksIds: supportedChains,
-    dappAPIKey: process.env.NEXT_PUBLIC_BICONOMY_KEY, // required for gasless userOps
+    activeNetworkId: 5,
+    supportedNetworksIds: [5],
+    dappAPIKey: process.env.NEXT_PUBLIC_BICONOMY_KEY,
   });
 
-  // Wallet initialization to fetch wallet info
   return wallet.init();
 }
 
@@ -61,7 +56,7 @@ export function useSmartAccountsByConnected() {
     async () =>
       smartAccount?.getSmartAccountsByOwner({
         owner: smartAccount?.owner,
-        chainId: activeChainId,
+        chainId: 5,
       }),
     {
       enabled: !!smartAccount,
@@ -86,12 +81,21 @@ export function useSmartAccountState() {
   );
 }
 
-export const ChainId = {
-  MAINNET: 1, // Ethereum
-  GOERLI: 5,
-  POLYGON_MUMBAI: 80001,
-  POLYGON_MAINNET: 137,
-};
+export function useBatchTransaction() {
+  const { smartAccount } = useGetSmartAccount();
 
-export let activeChainId = ChainId.GOERLI;
-export const supportedChains = [ChainId.GOERLI, ChainId.POLYGON_MUMBAI];
+  const BatchTransaction = async (transactions: Transaction[]) => {
+    if (!smartAccount) return;
+    const tx = await smartAccount.createTransactionBatch({ transactions });
+    return smartAccount.sendTransaction({ tx });
+  };
+
+  return useMutation(BatchTransaction, {
+    onSuccess: (data) => {
+      console.log("✅ BatchTransaction", data);
+    },
+    onError: (error) => {
+      console.log("❌ BatchTransaction", error);
+    },
+  });
+}

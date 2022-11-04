@@ -11,12 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [
-    chain.polygon,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-      ? [chain.goerli, chain.polygonMumbai]
-      : []),
-  ],
+  [chain.goerli],
   [
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID }),
     publicProvider(),
